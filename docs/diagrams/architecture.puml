@@ -1,0 +1,46 @@
+@startuml
+left to right direction
+skinparam componentStyle rectangle
+actor User
+
+node "Client device" {
+  component "Web browser" as Browser
+}
+
+cloud "AWS deployment target (proposed)" {
+  node "Web tier" {
+    component "Next.js frontend" as FE
+  }
+  node "Application tier" {
+    component "NestJS REST API" as API
+    component "Authentication / RBAC" as AUTH
+    component "Monitoring & alert logic" as MON
+  }
+  database "PostgreSQL" as DB
+  component "Optional scheduled worker" as WORKER
+}
+
+User --> Browser
+Browser --> FE : HTTPS
+FE --> API : HTTPS / JSON
+API --> AUTH : validate identity and permissions
+API --> DB : ORM queries
+API --> MON : metrics / alerts
+MON --> DB : read and write records
+WORKER ..> DB : evaluate rules (if implemented)
+WORKER ..> MON : trigger alerts (if implemented)
+
+note bottom of FE
+  Frontend: pages, forms, charts,
+  loading/error/empty states
+end note
+note bottom of API
+  DTO validation, guards,
+  services, REST controllers,
+  Swagger/OpenAPI
+end note
+note bottom of DB
+  Private network access;
+  secrets managed outside source control
+end note
+@enduml

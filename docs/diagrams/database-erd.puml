@@ -1,0 +1,122 @@
+@startuml
+hide circle
+skinparam linetype ortho
+
+entity "roles" as roles {
+  * id : UUID <<PK>>
+  --
+  * name : VARCHAR <<UNIQUE>>
+}
+entity "users" as users {
+  * id : UUID <<PK>>
+  --
+  * role_id : UUID <<FK>>
+  * full_name : VARCHAR
+  * email : VARCHAR <<UNIQUE>>
+  * password_hash : VARCHAR
+  * is_active : BOOLEAN
+  created_at : TIMESTAMP
+}
+entity "projects" as projects {
+  * id : UUID <<PK>>
+  --
+  * name : VARCHAR
+  description : TEXT
+  created_at : TIMESTAMP
+}
+entity "teams" as teams {
+  * id : UUID <<PK>>
+  --
+  * name : VARCHAR
+}
+entity "project_members" as members {
+  * id : UUID <<PK>>
+  --
+  * project_id : UUID <<FK>>
+  * user_id : UUID <<FK>>
+  team_id : UUID <<FK>>
+  membership_role : VARCHAR
+}
+entity "environments" as envs {
+  * id : UUID <<PK>>
+  --
+  * project_id : UUID <<FK>>
+  * name : VARCHAR
+  type : VARCHAR
+}
+entity "servers" as servers {
+  * id : UUID <<PK>>
+  --
+  * environment_id : UUID <<FK>>
+  * name : VARCHAR
+  hostname : VARCHAR
+  operating_system : VARCHAR
+  status : VARCHAR
+}
+entity "applications" as apps {
+  * id : UUID <<PK>>
+  --
+  * environment_id : UUID <<FK>>
+  server_id : UUID <<FK, nullable>>
+  * name : VARCHAR
+  version : VARCHAR
+  status : VARCHAR
+}
+entity "metrics" as metrics {
+  * id : UUID <<PK>>
+  --
+  * server_id : UUID <<FK>>
+  * metric_type : VARCHAR
+  * value : DECIMAL
+  unit : VARCHAR
+  * recorded_at : TIMESTAMP
+}
+entity "alert_rules" as rules {
+  * id : UUID <<PK>>
+  --
+  server_id : UUID <<FK, nullable>>
+  * name : VARCHAR
+  * metric_type : VARCHAR
+  * operator : VARCHAR
+  * threshold : DECIMAL
+  enabled : BOOLEAN
+}
+entity "alerts" as alerts {
+  * id : UUID <<PK>>
+  --
+  rule_id : UUID <<FK>>
+  server_id : UUID <<FK, nullable>>
+  * severity : VARCHAR
+  * status : VARCHAR
+  observed_value : DECIMAL
+  * triggered_at : TIMESTAMP
+  resolved_at : TIMESTAMP
+}
+entity "incidents" as incidents {
+  * id : UUID <<PK>>
+  --
+  alert_id : UUID <<FK, nullable>>
+  assignee_id : UUID <<FK, nullable>>
+  * title : VARCHAR
+  description : TEXT
+  * severity : VARCHAR
+  * status : VARCHAR
+  created_at : TIMESTAMP
+  resolved_at : TIMESTAMP
+}
+
+roles ||--o{ users
+projects ||--o{ members
+users ||--o{ members
+teams |o--o{ members
+projects ||--o{ envs
+envs ||--o{ servers
+envs ||--o{ apps
+servers |o--o{ apps
+servers ||--o{ metrics
+servers |o--o{ rules
+rules ||--o{ alerts
+servers |o--o{ alerts
+alerts |o--o{ incidents
+users |o--o{ incidents
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor Admin
+actor DevOps
+actor Viewer
+
+rectangle "CloudOps Manager" {
+  usecase "Sign in" as UC1
+  usecase "View dashboard" as UC2
+  usecase "View projects and resources" as UC3
+  usecase "Manage users and roles" as UC4
+  usecase "Manage projects and teams" as UC5
+  usecase "Manage environments" as UC6
+  usecase "Manage servers and applications" as UC7
+  usecase "View monitoring metrics" as UC8
+  usecase "Configure alert rules" as UC9
+  usecase "Acknowledge / resolve alerts" as UC10
+  usecase "Create / update incidents" as UC11
+  usecase "View API documentation" as UC12
+}
+
+Admin --> UC1
+DevOps --> UC1
+Viewer --> UC1
+Admin --> UC2
+DevOps --> UC2
+Viewer --> UC2
+Admin --> UC3
+DevOps --> UC3
+Viewer --> UC3
+Admin --> UC4
+Admin --> UC5
+DevOps --> UC5
+Admin --> UC6
+DevOps --> UC6
+Admin --> UC7
+DevOps --> UC7
+Admin --> UC8
+DevOps --> UC8
+Viewer --> UC8
+Admin --> UC9
+DevOps --> UC9
+Admin --> UC10
+DevOps --> UC10
+Admin --> UC11
+DevOps --> UC11
+Admin --> UC12
+DevOps --> UC12
+Viewer --> UC12
+@enduml
