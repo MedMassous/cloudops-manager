@@ -1,6 +1,7 @@
+
 "use client";
 
-
+import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 
 type ResourcePageProps = {
@@ -18,6 +19,46 @@ export default function ResourcePage({
   columns,
   rows,
 }: ResourcePageProps) {
+  const [search, setSearch] = useState("");
+  const [records, setRecords] = useState(rows);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formValues, setFormValues] = useState<string[]>(
+    columns.map(() => "")
+  );
+
+  const filteredRows = records.filter((row) =>
+    row.some((value) =>
+      value.toLowerCase().includes(search.toLowerCase().trim())
+    )
+  );
+
+  const addLabel =
+    title === "Users"
+      ? "User"
+      : title === "Alerts"
+        ? "Rule"
+        : title === "Projects"
+          ? "Project"
+          : title === "Servers"
+            ? "Server"
+            : title === "Applications"
+              ? "Application"
+              : title === "Settings"
+                ? "Setting"
+                : "Item";
+
+  function handleAddRecord(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (formValues.some((value) => !value.trim())) {
+      return;
+    }
+
+    setRecords((currentRecords) => [...currentRecords, formValues]);
+    setFormValues(columns.map(() => ""));
+    setIsFormOpen(false);
+  }
+
   return (
     <main className="min-h-screen bg-slate-100 p-5 text-slate-900 md:p-8">
       <header className="mb-8">
@@ -39,26 +80,79 @@ export default function ResourcePage({
 
           <button
             type="button"
-            onClick={() => alert("Create form will be added in the next step.")}
+            onClick={() => setIsFormOpen(true)}
             className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
           >
-            + Add {title === "Users" ? "User" : title === "Alerts" ? "Rule" : title === "Projects" ? "Project" : title === "Servers" ? "Server" : title === "Applications" ? "Application" : title === "Settings" ? "Setting" : "Item"}
+            + Add {addLabel}
           </button>
         </div>
       </header>
+
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <form
+            onSubmit={handleAddRecord}
+            className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
+          >
+            <h2 className="mb-5 text-xl font-bold">
+              Add {addLabel}
+            </h2>
+
+            <div className="space-y-4">
+              {columns.map((column, index) => (
+                <div key={column}>
+                  <label className="mb-1 block text-sm font-medium">
+                    {column}
+                  </label>
+                  <input
+                    required
+                    value={formValues[index]}
+                    onChange={(event) => {
+                      const nextValues = [...formValues];
+                      nextValues[index] = event.target.value;
+                      setFormValues(nextValues);
+                    }}
+                    placeholder={`Enter ${column.toLowerCase()}`}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(false)}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Save {addLabel}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-semibold">{title} overview</h2>
             <p className="mt-1 text-sm text-slate-500">
-              {rows.length} sample records
+              {filteredRows.length} of {records.length} records
             </p>
           </div>
 
           <input
             type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder={`Search ${title.toLowerCase()}...`}
+            aria-label={`Search ${title.toLowerCase()}`}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:w-64"
           />
         </div>
@@ -76,7 +170,7 @@ export default function ResourcePage({
             </thead>
 
             <tbody>
-              {rows.map((row, index) => (
+              {filteredRows.map((row, index) => (
                 <tr
                   key={`${title}-${index}`}
                   className="border-b border-slate-100 last:border-0"
@@ -92,13 +186,15 @@ export default function ResourcePage({
                 </tr>
               ))}
 
-              {rows.length === 0 && (
+              {filteredRows.length === 0 && (
                 <tr>
                   <td
                     colSpan={columns.length}
                     className="px-3 py-8 text-center text-slate-500"
                   >
-                    No records yet.
+                    {records.length === 0
+                      ? "No records yet."
+                      : "No matching records found."}
                   </td>
                 </tr>
               )}
