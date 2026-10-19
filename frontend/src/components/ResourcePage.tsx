@@ -26,11 +26,13 @@ export default function ResourcePage({
     columns.map(() => "")
   );
 
-  const filteredRows = records.filter((row) =>
-    row.some((value) =>
-      value.toLowerCase().includes(search.toLowerCase().trim())
-    )
-  );
+  const filteredRows = records
+    .map((row, index) => ({ row, index }))
+    .filter(({ row }) =>
+      row.some((value) =>
+        value.toLowerCase().includes(search.toLowerCase().trim())
+      )
+    );
 
   const addLabel =
     title === "Users"
@@ -54,9 +56,19 @@ export default function ResourcePage({
       return;
     }
 
-    setRecords((currentRecords) => [...currentRecords, formValues]);
+    setRecords((currentRecords) => [...currentRecords, [...formValues]]);
     setFormValues(columns.map(() => ""));
     setIsFormOpen(false);
+  }
+
+  function handleDeleteRecord(index: number) {
+    if (!window.confirm(`Delete this ${addLabel.toLowerCase()}?`)) {
+      return;
+    }
+
+    setRecords((currentRecords) =>
+      currentRecords.filter((_, recordIndex) => recordIndex !== index)
+    );
   }
 
   return (
@@ -94,9 +106,7 @@ export default function ResourcePage({
             onSubmit={handleAddRecord}
             className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
           >
-            <h2 className="mb-5 text-xl font-bold">
-              Add {addLabel}
-            </h2>
+            <h2 className="mb-5 text-xl font-bold">Add {addLabel}</h2>
 
             <div className="space-y-4">
               {columns.map((column, index) => (
@@ -104,6 +114,7 @@ export default function ResourcePage({
                   <label className="mb-1 block text-sm font-medium">
                     {column}
                   </label>
+
                   <input
                     required
                     value={formValues[index]}
@@ -127,6 +138,7 @@ export default function ResourcePage({
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -166,11 +178,12 @@ export default function ResourcePage({
                     {column}
                   </th>
                 ))}
+                <th className="px-3 py-3 font-medium">Actions</th>
               </tr>
             </thead>
 
             <tbody>
-              {filteredRows.map((row, index) => (
+              {filteredRows.map(({ row, index }) => (
                 <tr
                   key={`${title}-${index}`}
                   className="border-b border-slate-100 last:border-0"
@@ -183,13 +196,23 @@ export default function ResourcePage({
                       {value}
                     </td>
                   ))}
+
+                  <td className="px-3 py-4">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRecord(index)}
+                      className="rounded-md px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
 
               {filteredRows.length === 0 && (
                 <tr>
                   <td
-                    colSpan={columns.length}
+                    colSpan={columns.length + 1}
                     className="px-3 py-8 text-center text-slate-500"
                   >
                     {records.length === 0
