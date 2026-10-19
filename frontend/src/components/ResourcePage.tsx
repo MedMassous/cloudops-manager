@@ -22,6 +22,7 @@ export default function ResourcePage({
   const [search, setSearch] = useState("");
   const [records, setRecords] = useState(rows);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [formValues, setFormValues] = useState<string[]>(
     columns.map(() => "")
   );
@@ -49,16 +50,40 @@ export default function ResourcePage({
                 ? "Setting"
                 : "Item";
 
-  function handleAddRecord(event: React.FormEvent<HTMLFormElement>) {
+  function openAddForm() {
+    setEditingIndex(null);
+    setFormValues(columns.map(() => ""));
+    setIsFormOpen(true);
+  }
+
+  function handleSaveRecord(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (formValues.some((value) => !value.trim())) {
       return;
     }
 
-    setRecords((currentRecords) => [...currentRecords, [...formValues]]);
+    const savedValues = formValues.map((value) => value.trim());
+
+    if (editingIndex !== null) {
+      setRecords((currentRecords) =>
+        currentRecords.map((record, index) =>
+          index === editingIndex ? savedValues : record
+        )
+      );
+    } else {
+      setRecords((currentRecords) => [...currentRecords, savedValues]);
+    }
+
     setFormValues(columns.map(() => ""));
+    setEditingIndex(null);
     setIsFormOpen(false);
+  }
+
+  function handleEditRecord(index: number) {
+    setEditingIndex(index);
+    setFormValues([...records[index]]);
+    setIsFormOpen(true);
   }
 
   function handleDeleteRecord(index: number) {
@@ -69,6 +94,12 @@ export default function ResourcePage({
     setRecords((currentRecords) =>
       currentRecords.filter((_, recordIndex) => recordIndex !== index)
     );
+  }
+
+  function handleCancelForm() {
+    setIsFormOpen(false);
+    setEditingIndex(null);
+    setFormValues(columns.map(() => ""));
   }
 
   return (
@@ -92,7 +123,7 @@ export default function ResourcePage({
 
           <button
             type="button"
-            onClick={() => setIsFormOpen(true)}
+            onClick={openAddForm}
             className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
           >
             + Add {addLabel}
@@ -103,10 +134,14 @@ export default function ResourcePage({
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <form
-            onSubmit={handleAddRecord}
+            onSubmit={handleSaveRecord}
             className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl"
           >
-            <h2 className="mb-5 text-xl font-bold">Add {addLabel}</h2>
+            <h2 className="mb-5 text-xl font-bold">
+              {editingIndex !== null
+                ? `Edit ${addLabel}`
+                : `Add ${addLabel}`}
+            </h2>
 
             <div className="space-y-4">
               {columns.map((column, index) => (
@@ -133,7 +168,7 @@ export default function ResourcePage({
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setIsFormOpen(false)}
+                onClick={handleCancelForm}
                 className="rounded-lg border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50"
               >
                 Cancel
@@ -143,7 +178,7 @@ export default function ResourcePage({
                 type="submit"
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
-                Save {addLabel}
+                {editingIndex !== null ? "Save Changes" : `Save ${addLabel}`}
               </button>
             </div>
           </form>
@@ -197,7 +232,15 @@ export default function ResourcePage({
                     </td>
                   ))}
 
-                  <td className="px-3 py-4">
+                  <td className="whitespace-nowrap px-3 py-4">
+                    <button
+                      type="button"
+                      onClick={() => handleEditRecord(index)}
+                      className="mr-2 rounded-md px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+                    >
+                      Edit
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => handleDeleteRecord(index)}
