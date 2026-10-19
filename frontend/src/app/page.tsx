@@ -4,17 +4,10 @@ import {
   ArrowUpRight,
   Bell,
   Boxes,
-  CheckCircle2,
   CircleAlert,
-  Cloud,
-  Cpu,
   FolderKanban,
-  HardDrive,
   LayoutDashboard,
   Server,
-  Settings,
-  ShieldCheck,
-  Users,
 } from "lucide-react";
 
 const servers = [
@@ -28,17 +21,6 @@ const applications = [
   { name: "Web Portal", environment: "Production", status: "Running" },
   { name: "API Service", environment: "Production", status: "Running" },
   { name: "Background Worker", environment: "Staging", status: "Stopped" },
-];
-
-const navigation = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/" },
-  { label: "Projects", icon: FolderKanban, href: "/projects" },
-  { label: "Servers", icon: Server, href: "/servers" },
-  { label: "Applications", icon: Boxes, href: "/applications" },
-  { label: "Monitoring", icon: Activity, href: "/monitoring" },
-  { label: "Alerts", icon: Bell, href: "/alerts" },
-  { label: "Users", icon: Users, href: "/users" },
-  { label: "Settings", icon: Settings, href: "/settings" },
 ];
 
 const monitoring = [
@@ -226,6 +208,7 @@ function MonitoringChart() {
           })}
         </svg>
       </div>
+
       <p className="mt-3 text-xs text-slate-400">
         Illustrative data only · Not connected to live servers
       </p>
@@ -235,61 +218,8 @@ function MonitoringChart() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900 md:flex">
-      <aside className="w-full bg-slate-950 p-5 text-white md:min-h-screen md:w-64 md:shrink-0">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="rounded-lg bg-blue-600 p-2">
-            <Cloud size={24} />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold">CloudOps Manager</h1>
-            <p className="text-xs text-slate-400">Infrastructure platform</p>
-          </div>
-        </div>
-
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Workspace
-        </p>
-
-        <nav className="space-y-1">
-          {navigation.map((item, index) => {
-            const Icon = item.icon;
-            const active = index === 0;
-
-            return (
-              <a
-                key={item.label}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition ${
-                  active
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </a>
-            );
-          })}
-        </nav>
-
-        <div className="mt-8 rounded-xl border border-slate-800 p-4">
-          <ShieldCheck className="mb-2 text-emerald-400" size={22} />
-          <p className="text-sm font-medium">Infrastructure health</p>
-          <p className="mt-1 text-xs text-slate-400">
-            {onlineCount} online · {warningCount} warning · {offlineCount} offline
-          </p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-800">
-            <div
-              className="h-full rounded-full bg-emerald-500"
-              style={{ width: `${(onlineCount / servers.length) * 100}%` }}
-            />
-          </div>
-        </div>
-      </aside>
-
-      <section className="min-w-0 flex-1 p-5 md:p-8">
+    <main className="min-h-screen bg-slate-100 text-slate-900">
+      <section className="min-w-0 p-5 md:p-8">
         <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm text-slate-500">Workspace / Overview</p>
