@@ -1,3 +1,4 @@
+
 {
   "name": "backend",
   "version": "0.0.1",
@@ -25,7 +26,7 @@
     "prisma:seed": "prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "node_modules/.bin/ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -33,6 +34,8 @@
     "@nestjs/core": "^12.0.1",
     "@nestjs/jwt": "^12.0.3",
     "@nestjs/observe": "^0.3.0",
+    "@nestjs/passport": "^12.0.0",
+    "@nestjs/jwt": "^12.0.3",
     "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/swagger": "^12.0.4",
@@ -70,3 +73,4 @@
     "typescript": "^6.0.2"
   }
 }
+
